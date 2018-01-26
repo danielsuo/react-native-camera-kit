@@ -6,7 +6,6 @@ import {
   View,
   TouchableOpacity,
   Image,
-  ImageBackground,
   NativeModules,
   Platform
 } from 'react-native';
@@ -20,8 +19,6 @@ const FLASH_MODE_AUTO = 'auto';
 const FLASH_MODE_ON = 'on';
 const FLASH_MODE_OFF = 'off';
 const OVERLAY_DEFAULT_COLOR = '#ffffff77';
-
-const ImageComponent = ImageBackground ? ImageBackground : Image;
 
 export default class CameraScreenBase extends Component {
 
@@ -165,17 +162,14 @@ export default class CameraScreenBase extends Component {
         <TouchableOpacity
           onPress={() => this.onCaptureImagePressed()}
         >
-          <ImageComponent
+          <Image
             style={styles.captureButton}
             source={this.props.captureButtonImage}
             resizeMode={'contain'}
           >
-            <Text style={styles.captureNumber}>
-              {this.numberOfImagesTaken()}
-            </Text>
-          </ImageComponent>
+          </Image>
         </TouchableOpacity>
-      </View >
+      </View>
   }
 
   renderRatioStrip() {
