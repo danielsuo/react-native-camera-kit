@@ -200,8 +200,11 @@ export default class CameraScreenBase extends Component {
   }
 
   async onButtonPressed(type) {
-    ReactNativeHaptic.prepare();
-    ReactNativeHaptic.generate("light");
+    if (!!this.props.enableHaptics) {
+      ReactNativeHaptic.prepare();
+      ReactNativeHaptic.generate("light");
+    }
+
     const captureRetakeMode = this.isCaptureRetakeMode();
     if (captureRetakeMode) {
       if(type === 'left') {
@@ -254,10 +257,20 @@ export default class CameraScreenBase extends Component {
   }
 
   onSwitchCameraPressed() {
+    if (!!this.props.enableHaptics) {
+      ReactNativeHaptic.prepare();
+      ReactNativeHaptic.generate("light");
+    }
+
     this.camera.changeCamera();
   }
 
   async onSetFlash() {
+    if (!!this.props.enableHaptics) {
+      ReactNativeHaptic.prepare();
+      ReactNativeHaptic.generate("light");
+    }
+
     this.currentFlashArrayPosition = (this.currentFlashArrayPosition + 1) % 3;
     const newFlashData = this.flashArray[this.currentFlashArrayPosition];
     this.setState({ flashData: newFlashData });
@@ -265,8 +278,11 @@ export default class CameraScreenBase extends Component {
   }
 
   async onCaptureImagePressed() {
-    ReactNativeHaptic.prepare();
-    ReactNativeHaptic.generate("heavy");
+    if (!!this.props.enableHaptics) {
+      ReactNativeHaptic.prepare();
+      ReactNativeHaptic.generate("heavy");
+    }
+
     const shouldSaveToCameraRoll = !this.props.allowCaptureRetake;
     const image = await this.camera.capture(shouldSaveToCameraRoll);
 
@@ -281,6 +297,10 @@ export default class CameraScreenBase extends Component {
   }
 
   onRatioButtonPressed() {
+    if (!!this.props.enableHaptics) {
+      ReactNativeHaptic.prepare();
+      ReactNativeHaptic.generate("light");
+    }
     const newRatiosArrayPosition = ((this.state.ratioArrayPosition + 1) % this.state.ratios.length);
     const newCameraOptions = _.update(this.state.cameraOptions, 'ratioOverlay', (val) => this.state.ratios[newRatiosArrayPosition]);
     this.setState({ ratioArrayPosition: newRatiosArrayPosition, cameraOptions: newCameraOptions });
