@@ -1,36 +1,64 @@
 {
-  "name": "react-native-camera-kit",
-  "repository": {
+  "_from": "git+https://github.com/danielsuo/react-native-camera-kit.git",
+  "_id": "react-native-camera-kit@5.3.18",
+  "_inBundle": false,
+  "_location": "/react-native-camera-kit",
+  "_phantomChildren": {},
+  "_requested": {
     "type": "git",
-    "url": "https://github.com/wix/react-native-camera-kit.git"
+    "raw": "react-native-camera-kit@git+https://github.com/danielsuo/react-native-camera-kit.git",
+    "name": "react-native-camera-kit",
+    "escapedName": "react-native-camera-kit",
+    "rawSpec": "git+https://github.com/danielsuo/react-native-camera-kit.git",
+    "saveSpec": "git+https://github.com/danielsuo/react-native-camera-kit.git",
+    "fetchSpec": "https://github.com/danielsuo/react-native-camera-kit.git",
+    "gitCommittish": null
   },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "git+https://github.com/danielsuo/react-native-camera-kit.git#30304c72c011bb09b099dd74ca225919923b550e",
+  "_spec": "react-native-camera-kit@git+https://github.com/danielsuo/react-native-camera-kit.git",
+  "_where": "/Users/dsuo/noto/Noto",
+  "author": {
+    "name": "Ran Greenberg",
+    "email": "rang@wix.com"
   },
-  "version": "5.3.18",
-  "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
-  "author": "Ran Greenberg <rang@wix.com>",
-  "nativePackage": true,
   "bugs": {
     "url": "https://github.com/wix/react-native-camera-kit/issues"
   },
-  "scripts": {
-    "xcode": "open example/ios/camera-kit.xcodeproj"
-  },
+  "bundleDependencies": false,
   "dependencies": {
     "lodash": "^4.14.2",
-    "prop-types": "^15.5.10"
+    "prop-types": "^15.5.10",
+    "react-native-haptic":
+      "git+https://github.com/danielsuo/react-native-haptic.git"
   },
-  "license": "MIT",
-  "peerDependencies": {
-    "react": ">=0.14.5",
-    "react-native": ">=0.25.1"
-  },
+  "deprecated": false,
+  "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
   "devDependencies": {
     "react": "15.4.1",
     "react-native": "^0.38",
     "seamless-immutable": "^6.1.0",
     "shell-utils": "*"
   },
-  "homepage": "https://github.com/wix/react-native-camera-kit"
+  "homepage": "https://github.com/wix/react-native-camera-kit",
+  "license": "MIT",
+  "name": "react-native-camera-kit",
+  "nativePackage": true,
+  "peerDependencies": {
+    "react": ">=0.14.5",
+    "react-native": ">=0.25.1"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wix/react-native-camera-kit.git"
+  },
+  "scripts": {
+    "xcode": "open example/ios/camera-kit.xcodeproj"
+  },
+  "version": "5.3.18"
 }

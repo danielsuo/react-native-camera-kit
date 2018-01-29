@@ -12,6 +12,8 @@ import {
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
 
+import ReactNativeHaptic from 'react-native-haptic';
+
 const IsIOS = Platform.OS === 'ios';
 const GalleryManager = IsIOS ? NativeModules.CKGalleryManager : NativeModules.NativeGalleryModule;
 
@@ -198,6 +200,8 @@ export default class CameraScreenBase extends Component {
   }
 
   async onButtonPressed(type) {
+    ReactNativeHaptic.prepare();
+    ReactNativeHaptic.generate("light");
     const captureRetakeMode = this.isCaptureRetakeMode();
     if (captureRetakeMode) {
       if(type === 'left') {
@@ -261,6 +265,8 @@ export default class CameraScreenBase extends Component {
   }
 
   async onCaptureImagePressed() {
+    ReactNativeHaptic.prepare();
+    ReactNativeHaptic.generate("heavy");
     const shouldSaveToCameraRoll = !this.props.allowCaptureRetake;
     const image = await this.camera.capture(shouldSaveToCameraRoll);
 
