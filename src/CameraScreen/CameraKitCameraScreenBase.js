@@ -12,8 +12,6 @@ import {
 import _ from 'lodash';
 import CameraKitCamera from './../CameraKitCamera';
 
-import ReactNativeHaptic from 'react-native-haptic';
-
 const IsIOS = Platform.OS === 'ios';
 const GalleryManager = IsIOS ? NativeModules.CKGalleryManager : NativeModules.NativeGalleryModule;
 
@@ -98,7 +96,12 @@ export default class CameraScreenBase extends Component {
 
   renderFlashButton() {
     return !this.isCaptureRetakeMode() &&
-      <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={() => this.onSetFlash(FLASH_MODE_AUTO)}>
+      <TouchableOpacity style={{ paddingHorizontal: 15 }}
+        onPressIn={() => {
+          this.props.onSetFlashIn && this.props.onSetFlashIn();
+        }}
+        onPress={() => this.onSetFlash(FLASH_MODE_AUTO)}
+      >
         <Image
           style={{ flex: 1, justifyContent: 'center' }}
           source={this.state.flashData.image}
@@ -109,7 +112,12 @@ export default class CameraScreenBase extends Component {
 
   renderSwitchCameraButton() {
     return (this.props.cameraFlipImage && !this.isCaptureRetakeMode()) &&
-      <TouchableOpacity style={{ paddingHorizontal: 15 }} onPress={this.onSwitchCameraPressed}>
+      <TouchableOpacity style={{ paddingHorizontal: 15 }}
+        onPressIn={() => {
+          this.props.onSwitchCameraPressedIn && this.props.onSwitchCameraPressedIn()
+        }}
+        onPress={this.onSwitchCameraPressed}
+      >
         <Image
           style={{ flex: 1, justifyContent: 'center' }}
           source={this.props.cameraFlipImage}
@@ -162,6 +170,9 @@ export default class CameraScreenBase extends Component {
     return (this.props.captureButtonImage && !this.isCaptureRetakeMode()) &&
       <View style={styles.captureButtonContainer}>
         <TouchableOpacity
+          onPressIn={() => {
+            this.props.onCaptureImagePressedIn && this.props.onCaptureImagePressedIn();
+          }}
           onPress={() => this.onCaptureImagePressed()}
         >
           <Image
@@ -184,6 +195,9 @@ export default class CameraScreenBase extends Component {
           <Text style={styles.ratioBestText}>Your images look best at a {this.state.ratios[0] || ''} ratio</Text>
           <TouchableOpacity
             style={{ flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', padding: 8 }}
+            onPressIn={() => {
+              this.props.onRatioButtonPressedIn && this.props.onRatioButtonPressedIn();
+            }}
             onPress={() => this.onRatioButtonPressed()}
           >
             <Text style={styles.ratioText}>{this.state.cameraOptions.ratioOverlay}</Text>
@@ -200,10 +214,7 @@ export default class CameraScreenBase extends Component {
   }
 
   async onButtonPressed(type) {
-    if (!!this.props.enableHaptics) {
-      ReactNativeHaptic.prepare();
-      ReactNativeHaptic.generate("light");
-    }
+    this.props.onButtonPressed && this.props.onButtonPressed();
 
     const captureRetakeMode = this.isCaptureRetakeMode();
     if (captureRetakeMode) {
@@ -234,6 +245,9 @@ export default class CameraScreenBase extends Component {
       return (
         <TouchableOpacity
           style={[styles.bottomButton, { justifyContent: type === 'left' ? 'flex-start' : 'flex-end' }]}
+          onPressIn={() => {
+            this.props.onButtonPressedIn && this.props.onButtonPressedIn()
+          }}
           onPress={() => this.onButtonPressed(type)}
         >
           <Text style={styles.textStyle}>{buttonText}</Text>
@@ -257,19 +271,13 @@ export default class CameraScreenBase extends Component {
   }
 
   onSwitchCameraPressed() {
-    if (!!this.props.enableHaptics) {
-      ReactNativeHaptic.prepare();
-      ReactNativeHaptic.generate("light");
-    }
+    this.props.onSwitchCameraPressed && this.props.onSwitchCameraPressed();
 
     this.camera.changeCamera();
   }
 
   async onSetFlash() {
-    if (!!this.props.enableHaptics) {
-      ReactNativeHaptic.prepare();
-      ReactNativeHaptic.generate("light");
-    }
+    this.props.onSetFlash && this.props.onSetFlash();
 
     this.currentFlashArrayPosition = (this.currentFlashArrayPosition + 1) % 3;
     const newFlashData = this.flashArray[this.currentFlashArrayPosition];
@@ -278,11 +286,7 @@ export default class CameraScreenBase extends Component {
   }
 
   async onCaptureImagePressed() {
-    if (!!this.props.enableHaptics) {
-      ReactNativeHaptic.prepare();
-      ReactNativeHaptic.generate("heavy");
-    }
-
+    this.props.onCaptureImagePressed && this.props.onCaptureImagePressed();
     const shouldSaveToCameraRoll = !this.props.allowCaptureRetake;
     const image = await this.camera.capture(shouldSaveToCameraRoll);
 
@@ -297,10 +301,7 @@ export default class CameraScreenBase extends Component {
   }
 
   onRatioButtonPressed() {
-    if (!!this.props.enableHaptics) {
-      ReactNativeHaptic.prepare();
-      ReactNativeHaptic.generate("light");
-    }
+    this.props.onRatioButtonPressed && this.props.onRatioButtonPressed()
     const newRatiosArrayPosition = ((this.state.ratioArrayPosition + 1) % this.state.ratios.length);
     const newCameraOptions = _.update(this.state.cameraOptions, 'ratioOverlay', (val) => this.state.ratios[newRatiosArrayPosition]);
     this.setState({ ratioArrayPosition: newRatiosArrayPosition, cameraOptions: newCameraOptions });

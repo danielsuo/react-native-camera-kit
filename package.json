@@ -30,9 +30,7 @@
   "bundleDependencies": false,
   "dependencies": {
     "lodash": "^4.14.2",
-    "prop-types": "^15.5.10",
-    "react-native-haptic":
-      "git+https://github.com/danielsuo/react-native-haptic.git"
+    "prop-types": "^15.5.10"
   },
   "deprecated": false,
   "description": "Advanced native camera control with pre-defined aspect ratio, crop, etc",
