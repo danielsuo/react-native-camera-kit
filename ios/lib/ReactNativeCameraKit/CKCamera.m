@@ -17,10 +17,12 @@
 #import "RCTConvert.h"
 #endif
 
-
 #import "CKCamera.h"
 #import "CKCameraOverlayView.h"
 #import "CKGalleryManager.h"
+
+@import CoreMotion;
+@import ImageIO;
 
 static void * CapturingStillImageContext = &CapturingStillImageContext;
 static void * SessionRunningContext = &SessionRunningContext;
@@ -69,6 +71,9 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 #define CAMERA_OPTION_ON_READ_CODE               @"onReadCode"
 #define TIMER_FOCUS_TIME_SECONDS            5
 
+CGFloat DegreesToRadians(CGFloat degrees) {return degrees * M_PI / 180;};
+CGFloat RadiansToDegrees(CGFloat radians) {return radians * 180/M_PI;};
+
 @interface CKCamera () <AVCaptureFileOutputRecordingDelegate, AVCaptureMetadataOutputObjectsDelegate>
 
 
@@ -103,6 +108,10 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 
 @property (nonatomic) BOOL isAddedOberver;
 
+// orientation
+@property (nonatomic) UIImageOrientation orientationLast, orientationAfterProcess;
+@property (nonatomic) CMMotionManager *motionManager;
+
 @end
 
 @implementation CKCamera
@@ -112,7 +121,59 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
 - (void)dealloc
 {
     [self removeObservers];
+    [_motionManager stopAccelerometerUpdates];
+
     //NSLog(@"dealloc");
+}
+
+- (void)initializeMotionManager{
+    _motionManager = [[CMMotionManager alloc] init];
+    _motionManager.accelerometerUpdateInterval = .2;
+    _motionManager.gyroUpdateInterval = .2;
+    
+    [_motionManager startAccelerometerUpdatesToQueue:[NSOperationQueue currentQueue]
+                                        withHandler:^(CMAccelerometerData  *accelerometerData, NSError *error) {
+                                            if (!error) {
+                                                [self outputAccelerationData:accelerometerData.acceleration];
+                                            }
+                                            else{
+                                                NSLog(@"%@", error);
+                                            }
+                                        }];
+}
+
+- (void)outputAccelerationData:(CMAcceleration)acceleration{
+    UIImageOrientation orientationNew;
+    
+    if (acceleration.x >= 0.75) {
+        orientationNew = UIImageOrientationLeft;
+//        orientationNew = UIImageOrientationDown;
+//        NSLog(@"Left");
+    }
+    else if (acceleration.x <= -0.75) {
+        orientationNew = UIImageOrientationRight;
+//        orientationNew = UIImageOrientationUp;
+//        NSLog(@"Rihgt");
+    }
+    else if (acceleration.y <= -0.75) {
+        orientationNew = UIImageOrientationUp;
+//        orientationNew = UIImageOrientationLeft;
+//        NSLog(@"Up");
+    }
+    else if (acceleration.y >= 0.75) {
+        orientationNew = UIImageOrientationDown;
+//        orientationNew = UIImageOrientationRight;
+//        NSLog(@"Down");
+    }
+    else {
+        // Consider same as last time
+        return;
+    }
+    
+    if (orientationNew == _orientationLast)
+        return;
+    
+    _orientationLast = orientationNew;
 }
 
 -(PHFetchOptions *)fetchOptions {
@@ -180,6 +241,8 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
         self.flashMode = CKCameraFlashModeAuto;
         self.focusMode = CKCameraFocushModeOn;
     }
+    
+    [self initializeMotionManager];
     
     return self;
 }
@@ -497,7 +560,7 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
                 // The sample buffer is not retained. Create image data before saving the still image to the photo library asynchronously.
                 NSData *imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
                 UIImage *capturedImage = [UIImage imageWithData:imageData];
-                capturedImage = [CKCamera rotateImage:capturedImage];
+                capturedImage = [self rotateImage:capturedImage];
                 
                 CGSize previewScaleSize = [CKCamera cropImageToPreviewSize:capturedImage size:self.previewLayer.bounds.size];
                 CGRect rectToCrop = CGRectMake((capturedImage.size.width-previewScaleSize.width)*0.5, (capturedImage.size.height-previewScaleSize.height)*0.5, previewScaleSize.width, previewScaleSize.height);
@@ -562,19 +625,33 @@ RCT_ENUM_CONVERTER(CKCameraZoomMode, (@{
     } );
 }
 
-+(UIImage*)rotateImage:(UIImage*)originalImage {
+-(UIImage*)rotateImage:(UIImage*)originalImage {
+    UIImage *newImage;
     
-    if (originalImage.imageOrientation == UIImageOrientationUp || originalImage == nil)
-        return originalImage;
-    
-    
-    UIGraphicsBeginImageContextWithOptions(originalImage.size, NO, originalImage.scale);
-    
-    [originalImage drawInRect:(CGRect){0, 0, originalImage.size}];
+    switch (_orientationLast) {
+        case UIImageOrientationUp:
+            newImage = [UIImage imageWithCGImage:[originalImage CGImage] scale:[originalImage scale] orientation:UIImageOrientationRight];
+            break;
+        case UIImageOrientationDown:
+            newImage = [UIImage imageWithCGImage:[originalImage CGImage] scale:[originalImage scale] orientation:UIImageOrientationLeft];
+            break;
+        case UIImageOrientationLeft:
+            newImage = [UIImage imageWithCGImage:[originalImage CGImage] scale:[originalImage scale] orientation:UIImageOrientationDown];
+            break;
+        case UIImageOrientationRight:
+            newImage = [UIImage imageWithCGImage:[originalImage CGImage] scale:[originalImage scale] orientation:UIImageOrientationUp];
+            break;
+        default:
+            break;
+    }
+
+    UIGraphicsBeginImageContextWithOptions(newImage.size, NO, newImage.scale);
+
+    [newImage drawInRect:(CGRect){0, 0, newImage.size}];
     UIImage *normalizedImage =  UIGraphicsGetImageFromCurrentImageContext();
-    
+
     UIGraphicsEndImageContext();
-    
+
     return normalizedImage;
 }
 
